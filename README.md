@@ -1,5 +1,7 @@
 # uptimed
 
+[![Build Status](https://travis-ci.com/epels/uptimed.svg?token=fFCsEza59TasaQuy6qDV&branch=master)](https://travis-ci.com/epels/uptimed)
+
 Daemon exposing the output of the `uptime` command over HTTP.
 
 ## Configuration
