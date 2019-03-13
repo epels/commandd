@@ -13,3 +13,18 @@ Usage of ./uptimed:
   -pattern string
     	Pattern to respond to. Set to / for any path (default "/uptime")
 ```
+
+## Docker
+Running in Docker is easy. First, build an image.
+
+```bash
+docker build -t some-tag .
+```
+
+To run a container from the freshly built image:
+
+```bash
+docker run -p 8080:8080 --rm -t some-tag
+```
+
+The `-p` flag publishes the container's port to the host.
