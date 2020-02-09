@@ -4,4 +4,4 @@ RUN go install /go/src/github.com/epels/commandd/cmd/commandd
 
 FROM alpine
 COPY --from=builder /go/bin/commandd /app/
-CMD ["/app/commandd"]
+ENTRYPOINT ["/app/commandd"]
