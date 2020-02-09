@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/epels/uptimed/internal/mock"
+	"github.com/epels/commandd/internal/mock"
 )
 
 func TestServeHTTP(t *testing.T) {

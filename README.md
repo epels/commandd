@@ -1,15 +1,15 @@
-# uptimed
+# commandd
 
-[![Build Status](https://travis-ci.com/epels/uptimed.svg?token=fFCsEza59TasaQuy6qDV&branch=master)](https://travis-ci.com/epels/uptimed)
+[![Build Status](https://travis-ci.com/epels/commandd.svg?token=fFCsEza59TasaQuy6qDV&branch=master)](https://travis-ci.com/epels/commandd)
 
-Daemon exposing the output of the `uptime` command over HTTP.
+Daemon exposing the output of any arbitrary command over HTTP.
 
 ## Configuration
-The uptimed daemon allows basic configuration through flags. Comes with reasonable defaults.
+The commandd daemon allows basic configuration through flags. Comes with reasonable defaults.
  
 ```
-$ ./uptimed -help
-Usage of ./uptimed:
+$ ./commandd -help
+Usage of ./commandd:
   -addr string
     	Address to listen on (default ":8080")
   -pattern string

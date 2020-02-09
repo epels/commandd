@@ -1,7 +1,7 @@
 FROM golang:alpine AS builder
-ADD . /go/src/github.com/epels/uptimed
-RUN go install /go/src/github.com/epels/uptimed/cmd/uptimed
+ADD . /go/src/github.com/epels/commandd
+RUN go install /go/src/github.com/epels/commandd/cmd/commandd
 
 FROM alpine
-COPY --from=builder /go/bin/uptimed /app/
-CMD ["/app/uptimed"]
+COPY --from=builder /go/bin/commandd /app/
+CMD ["/app/commandd"]

@@ -1,4 +1,4 @@
-// Package main is the executable for uptimed. It spins up a HTTP server.
+// Package main is the executable for commandd. It spins up a HTTP server.
 package main
 
 import (
@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/epels/uptimed/handler"
-	"github.com/epels/uptimed/uptime"
+	"github.com/epels/commandd/handler"
+	"github.com/epels/commandd/uptime"
 )
 
 var (
