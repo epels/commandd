@@ -15,22 +15,27 @@ import (
 	"github.com/epels/commandd/uptime"
 )
 
+var addr, pattern string
+
 var (
 	errLog  = log.New(os.Stderr, "[ERROR]: ", log.LstdFlags|log.Lshortfile)
 	infoLog = log.New(os.Stdout, "[INFO]: ", log.LstdFlags|log.Lshortfile)
-
-	addr    = flag.String("addr", ":8080", "Address to listen on")
-	pattern = flag.String("pattern", "/uptime", "Pattern to respond to. Set to / for any path")
 )
+
+func init() {
+	flag.StringVar(&addr, "addr", ":8080", "Address to listen on")
+	flag.StringVar(&pattern, "pattern", "/uptime", "Pattern to respond to. Set to / for any path")
+	flag.Parse()
+}
 
 func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.Handle(*pattern, handler.New(errLog, uptime.New()))
+	mux.Handle(pattern, handler.New(errLog, uptime.New()))
 
 	s := &http.Server{
-		Addr:    *addr,
+		Addr:    addr,
 		Handler: mux,
 
 		IdleTimeout:  60 * time.Second,
@@ -43,7 +48,7 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		infoLog.Printf("Starting server on %q", *addr)
+		infoLog.Printf("Starting server on %q", addr)
 		errChan <- s.ListenAndServe()
 	}()
 
