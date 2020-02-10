@@ -37,6 +37,9 @@ func (c *command) Run(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("os/exec: Cmd.Start: %v", err)
 	}
 
+	// @todo: Consider having Run accept an io.Writer and pipe the command's
+	//        output to it, so there is no need to read all output into memory
+	//        at once.
 	b, err := ioutil.ReadAll(stdout)
 	if err != nil {
 		return nil, fmt.Errorf("io/ioutil: ReadAll: %v", err)
