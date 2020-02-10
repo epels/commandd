@@ -37,8 +37,6 @@ func init() {
 }
 
 func main() {
-	flag.Parse()
-
 	mux := http.NewServeMux()
 	mux.Handle(pattern, handler.New(errLog, command.New(), timeout))
 
