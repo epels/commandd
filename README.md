@@ -4,7 +4,12 @@
 
 Daemon exposing the output of any arbitrary command over HTTP.
 
+## Requirements
+
+* `Go 1.13`
+
 ## Configuration
+
 The commandd daemon allows basic configuration through flags. Comes with reasonable defaults.
  
 ```
@@ -17,6 +22,7 @@ Usage of ./commandd:
 ```
 
 ## Docker
+
 Running in Docker is easy. First, build an image.
 
 ```bash
