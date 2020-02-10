@@ -2,6 +2,7 @@ package uptime
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 )
@@ -13,7 +14,7 @@ func TestRun(t *testing.T) {
 			arg:  []string{"-n", "foo bar"},
 		}
 
-		b, err := cmd.Run(context.TODO())
+		b, err := cmd.Run(context.Background())
 		if err != nil {
 			t.Fatalf("Unexpected error running process: %v", err)
 		}
@@ -26,14 +27,14 @@ func TestRun(t *testing.T) {
 	t.Run("Timeout", func(t *testing.T) {
 		cmd := command{
 			name: "sleep",
-			arg:  []string{"3"},
+			arg:  []string{"1"},
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 		defer cancel()
 
-		if _, err := cmd.Run(ctx); err == nil {
-			t.Fatalf("Got nil, expected error")
+		if _, err := cmd.Run(ctx); !errors.Is(err, context.DeadlineExceeded) {
+			t.Fatalf("Got %T (%s), expected context.DeadlineExceeded", err, err)
 		}
 	})
 }

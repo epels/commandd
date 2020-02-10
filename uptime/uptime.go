@@ -39,10 +39,18 @@ func (c *command) Run(ctx context.Context) ([]byte, error) {
 
 	b, err := ioutil.ReadAll(stdout)
 	if err != nil {
-		return nil, fmt.Errorf("ioutil: ReadAll: %v", err)
+		return nil, fmt.Errorf("io/ioutil: ReadAll: %v", err)
 	}
 
-	if err := cmd.Wait(); err != nil {
+	err = cmd.Wait()
+	// cmd.Wait() does not propagate the context error (e.g. Canceled or
+	// DeadlineExceeded), but instead returns an error indicating the process
+	// was killed. In this case we care about the context error more.
+	// See also: https://github.com/golang/go/issues/21880.
+	if cerr := ctx.Err(); cerr != nil {
+		return nil, cerr
+	}
+	if err != nil {
 		return nil, fmt.Errorf("os/exec: Cmd.Wait: %v", err)
 	}
 
