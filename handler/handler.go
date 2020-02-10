@@ -40,12 +40,12 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		h.errLog.Printf("Unexpected error running: %v", err)
+		h.errLog.Printf("%T.Run: : %s", h.r, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if _, err = w.Write(b); err != nil {
-		h.errLog.Printf("Unexpected error writing: %v", err)
+		h.errLog.Printf("%T.Write: %s", w, err)
 	}
 }
