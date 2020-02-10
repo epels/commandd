@@ -15,12 +15,12 @@ import (
 	"github.com/epels/commandd/uptime"
 )
 
-var addr, pattern string
-
 var (
 	errLog  = log.New(os.Stderr, "[ERROR]: ", log.LstdFlags|log.Lshortfile)
 	infoLog = log.New(os.Stdout, "[INFO]: ", log.LstdFlags|log.Lshortfile)
 )
+
+var addr, pattern string
 
 func init() {
 	flag.StringVar(&addr, "addr", ":8080", "Address to listen on")
