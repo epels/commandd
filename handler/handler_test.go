@@ -10,21 +10,25 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/epels/commandd/internal/mock"
 )
 
 func TestServeHTTP(t *testing.T) {
+	defaultTimeout := 10 * time.Second // Arbitrary.
+	noopLogger := log.New(ioutil.Discard, "", 0)
+
 	t.Run("OK", func(t *testing.T) {
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, "/uptime", nil)
+		req := httptest.NewRequest(http.MethodGet, "/run", nil)
 
 		r := mock.Runner{
 			RunFunc: func(ctx context.Context) ([]byte, error) {
 				return []byte("hello world"), nil
 			},
 		}
-		h := New(log.New(ioutil.Discard, "", log.LstdFlags), &r)
+		h := New(noopLogger, &r, defaultTimeout)
 
 		h.ServeHTTP(rec, req)
 
@@ -39,7 +43,7 @@ func TestServeHTTP(t *testing.T) {
 
 	t.Run("Runner error", func(t *testing.T) {
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, "/uptime", nil)
+		req := httptest.NewRequest(http.MethodGet, "/run", nil)
 
 		var logBuf bytes.Buffer
 		r := mock.Runner{
@@ -47,7 +51,7 @@ func TestServeHTTP(t *testing.T) {
 				return nil, errors.New("some-error")
 			},
 		}
-		h := New(log.New(&logBuf, "", log.LstdFlags), &r)
+		h := New(log.New(&logBuf, "", log.LstdFlags), &r, defaultTimeout)
 
 		h.ServeHTTP(rec, req)
 
@@ -58,6 +62,24 @@ func TestServeHTTP(t *testing.T) {
 		// Assert it writes a log on error.
 		if s := logBuf.String(); !strings.Contains(s, "some-error") {
 			t.Fatalf("Got %q, expected to contain some-error", s)
+		}
+	})
+
+	t.Run("Runner timeout", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/run", nil)
+
+		r := mock.Runner{
+			RunFunc: func(ctx context.Context) ([]byte, error) {
+				return nil, context.DeadlineExceeded
+			},
+		}
+		h := New(noopLogger, &r, defaultTimeout)
+
+		h.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusRequestTimeout {
+			t.Errorf("Got %d, expected 408", rec.Code)
 		}
 	})
 }

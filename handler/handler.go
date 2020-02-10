@@ -6,11 +6,13 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 )
 
 type handler struct {
-	errLog *log.Logger
-	r      runner
+	errLog  *log.Logger
+	r       runner
+	timeout time.Duration
 }
 
 type runner interface {
@@ -19,12 +21,23 @@ type runner interface {
 
 // New gets a new handler that writes errors to the logger and invokes r as its
 // data source.
-func New(errLog *log.Logger, r runner) *handler {
-	return &handler{errLog, r}
+func New(errLog *log.Logger, r runner, timeout time.Duration) *handler {
+	return &handler{
+		errLog:  errLog,
+		r:       r,
+		timeout: timeout,
+	}
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	b, err := h.r.Run(r.Context())
+	ctx, cancel := context.WithTimeout(r.Context(), h.timeout)
+	defer cancel()
+
+	b, err := h.r.Run(ctx)
+	if err == context.DeadlineExceeded {
+		w.WriteHeader(http.StatusRequestTimeout)
+		return
+	}
 	if err != nil {
 		h.errLog.Printf("Unexpected error running: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

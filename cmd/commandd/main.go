@@ -20,11 +20,15 @@ var (
 	infoLog = log.New(os.Stdout, "[INFO]: ", log.LstdFlags|log.Lshortfile)
 )
 
-var addr, pattern string
+var (
+	addr, pattern string
+	timeout       time.Duration
+)
 
 func init() {
 	flag.StringVar(&addr, "addr", ":8080", "Address to listen on")
 	flag.StringVar(&pattern, "pattern", "/run", "Pattern to serve to")
+	flag.DurationVar(&timeout, "timeout", 10*time.Second, "Timeout for command")
 	flag.Parse()
 }
 
@@ -32,15 +36,15 @@ func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.Handle(pattern, handler.New(errLog, uptime.New()))
+	mux.Handle(pattern, handler.New(errLog, uptime.New(), timeout))
 
 	s := &http.Server{
 		Addr:    addr,
 		Handler: mux,
 
 		IdleTimeout:  60 * time.Second,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  timeout + 5*time.Second,
+		WriteTimeout: timeout + 5*time.Second,
 	}
 
 	errChan := make(chan error, 1)
