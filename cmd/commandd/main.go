@@ -21,8 +21,12 @@ var (
 )
 
 var (
-	addr, pattern string
-	timeout       time.Duration
+	// addr is the address to serve HTTP requests on.
+	addr string
+	// pattern is the HTTP path that triggers the command.
+	pattern string
+	// timeout applies to the command being executed.
+	timeout time.Duration
 )
 
 func init() {
