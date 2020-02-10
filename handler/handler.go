@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -34,7 +35,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	b, err := h.r.Run(ctx)
-	if err == context.DeadlineExceeded {
+	if errors.Is(err, context.DeadlineExceeded) {
 		w.WriteHeader(http.StatusRequestTimeout)
 		return
 	}
