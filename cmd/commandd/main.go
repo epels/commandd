@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/epels/commandd/command"
 	"github.com/epels/commandd/handler"
-	"github.com/epels/commandd/uptime"
 )
 
 var (
@@ -40,7 +40,7 @@ func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.Handle(pattern, handler.New(errLog, uptime.New(), timeout))
+	mux.Handle(pattern, handler.New(errLog, command.New(), timeout))
 
 	s := &http.Server{
 		Addr:    addr,

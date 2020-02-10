@@ -1,6 +1,6 @@
-// Package uptime wraps os/exec to easily execute the uptime command and get
+// Package command wraps os/exec to easily execute the command command and get
 // its output.
-package uptime
+package command
 
 import (
 	"context"
@@ -16,6 +16,8 @@ type command struct {
 
 // New may panic if the uptime binary is not in the PATH.
 func New() *command {
+	// @todo: Now hardcoded to run uptime, but make this configurable to accept
+	//        any arbitrary executable (plus arguments).
 	path, err := exec.LookPath("uptime")
 	if err != nil {
 		panic("Unable to locate uptime binary: " + err.Error())
