@@ -24,7 +24,7 @@ var (
 
 func init() {
 	flag.StringVar(&addr, "addr", ":8080", "Address to listen on")
-	flag.StringVar(&pattern, "pattern", "/uptime", "Pattern to respond to. Set to / for any path")
+	flag.StringVar(&pattern, "pattern", "/run", "Pattern to serve to")
 	flag.Parse()
 }
 
