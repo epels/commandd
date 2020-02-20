@@ -71,6 +71,24 @@ func TestServeHTTP(t *testing.T) {
 
 		r := mock.Runner{
 			RunFunc: func(ctx context.Context) ([]byte, error) {
+				return nil, context.Canceled
+			},
+		}
+		h := New(noopLogger, &r, defaultTimeout)
+
+		h.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusRequestTimeout {
+			t.Errorf("Got %d, expected 408", rec.Code)
+		}
+	})
+
+	t.Run("Runner timeout", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/run", nil)
+
+		r := mock.Runner{
+			RunFunc: func(ctx context.Context) ([]byte, error) {
 				return nil, context.DeadlineExceeded
 			},
 		}
