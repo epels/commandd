@@ -37,8 +37,14 @@ func init() {
 }
 
 func main() {
+	cmds, args := commandAndArgs()
+	cmd, err := command.New(cmds, args...)
+	if err != nil {
+		errLog.Fatalf("command: New: %s", err)
+	}
+
 	mux := http.NewServeMux()
-	mux.Handle(pattern, handler.New(errLog, command.New(), timeout))
+	mux.Handle(pattern, handler.New(errLog, cmd, timeout))
 
 	s := &http.Server{
 		Addr:    addr,
@@ -71,4 +77,11 @@ func main() {
 	if err := s.Shutdown(ctx); err != nil {
 		errLog.Printf("net/http: Server.Shutdown: %v", err)
 	}
+}
+
+func commandAndArgs() (string, []string) {
+	nf := flag.NFlag()
+	// Offset by 1 to skip the "./commandd" part of the invocation.
+	// @todo: Error on potential bounds out of range panic.
+	return os.Args[nf+1], os.Args[nf+2:]
 }

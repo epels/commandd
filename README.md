@@ -18,7 +18,20 @@ Usage of ./commandd:
   -addr string
     	Address to listen on (default ":8080")
   -pattern string
-    	Pattern to respond to. Set to / for any path (default "/uptime")
+    	Pattern to serve to (default "/run")
+  -timeout duration
+    	Timeout for command (default 10s)
+```
+
+Anything after the flags is the command to execute on requesting pattern. A typical invocation looks like this:
+
+```bash
+$ ./commandd -addr=":8080" -timeout="2s" echo -n foo bar baz
+```
+
+```bash
+$ curl http://localhost:8080/run
+foo bar baz
 ```
 
 ## Docker

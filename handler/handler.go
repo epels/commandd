@@ -35,11 +35,15 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	b, err := h.r.Run(ctx)
-	if errors.Is(err, context.DeadlineExceeded) {
+	switch {
+	case errors.Is(err, context.Canceled):
+		// @todo: Find a more appropriate status code.
 		w.WriteHeader(http.StatusRequestTimeout)
 		return
-	}
-	if err != nil {
+	case errors.Is(err, context.DeadlineExceeded):
+		w.WriteHeader(http.StatusRequestTimeout)
+		return
+	case err != nil:
 		h.errLog.Printf("%T.Run: : %s", h.r, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

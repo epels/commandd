@@ -15,14 +15,12 @@ type command struct {
 }
 
 // New may panic if the uptime binary is not in the PATH.
-func New() *command {
-	// @todo: Now hardcoded to run uptime, but make this configurable to accept
-	//        any arbitrary executable (plus arguments).
-	path, err := exec.LookPath("uptime")
+func New(name string, args ...string) (*command, error) {
+	path, err := exec.LookPath(name)
 	if err != nil {
-		panic("Unable to locate uptime binary: " + err.Error())
+		return nil, fmt.Errorf("unable to locate executable: %s", err)
 	}
-	return &command{path, nil}
+	return &command{path, args}, nil
 }
 
 // Run starts the process and waits for it to complete, then returns the
