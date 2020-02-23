@@ -11,6 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"contrib.go.opencensus.io/exporter/prometheus"
+	"go.opencensus.io/stats/view"
+
 	"github.com/epels/commandd/command"
 	"github.com/epels/commandd/handler"
 )
@@ -43,8 +46,18 @@ func main() {
 		errLog.Fatalf("command: New: %s", err)
 	}
 
+	h := handler.New(errLog, cmd, timeout)
+	pe, err := prometheus.NewExporter(prometheus.Options{
+		Namespace: "commandd",
+	})
+	if err != nil {
+		errLog.Fatalf("prometheus: NewExporter: %s", err)
+	}
+	view.RegisterExporter(pe)
+
 	mux := http.NewServeMux()
-	mux.Handle(pattern, handler.New(errLog, cmd, timeout))
+	mux.Handle(pattern, h)
+	mux.Handle("/metrics", pe)
 
 	s := &http.Server{
 		Addr:    addr,

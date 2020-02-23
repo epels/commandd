@@ -8,6 +8,9 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/stats/view"
 )
 
 type handler struct {
@@ -22,12 +25,18 @@ type runner interface {
 
 // New gets a new handler that writes errors to the logger and invokes r as its
 // data source.
-func New(errLog *log.Logger, r runner, timeout time.Duration) *handler {
-	return &handler{
+func New(errLog *log.Logger, r runner, timeout time.Duration) http.Handler {
+	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
+		// Log an error, but proceed anyway - not being able to expose metrics
+		// is not critical.
+		errLog.Printf("Error registering server metric views: %s", err)
+	}
+	inner := &handler{
 		errLog:  errLog,
 		r:       r,
 		timeout: timeout,
 	}
+	return &ochttp.Handler{Handler: inner}
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
