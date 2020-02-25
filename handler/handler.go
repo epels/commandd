@@ -52,7 +52,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusRequestTimeout)
 		return
 	case err != nil:
-		h.errLog.Printf("%T.Run: : %s", h.r, err)
+		h.errLog.Printf("%T.Run: %s", h.r, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

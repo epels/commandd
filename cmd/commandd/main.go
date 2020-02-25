@@ -95,6 +95,8 @@ func main() {
 func commandAndArgs() (string, []string) {
 	nf := flag.NFlag()
 	// Offset by 1 to skip the "./commandd" part of the invocation.
-	// @todo: Error on potential bounds out of range panic.
+	if len(os.Args) < nf+2 {
+		errLog.Fatalf("Missing command")
+	}
 	return os.Args[nf+1], os.Args[nf+2:]
 }
