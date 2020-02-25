@@ -65,7 +65,7 @@ func TestServeHTTP(t *testing.T) {
 		}
 	})
 
-	t.Run("Runner timeout", func(t *testing.T) {
+	t.Run("Runner canceled", func(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/run", nil)
 
@@ -78,8 +78,8 @@ func TestServeHTTP(t *testing.T) {
 
 		h.ServeHTTP(rec, req)
 
-		if rec.Code != http.StatusRequestTimeout {
-			t.Errorf("Got %d, expected 408", rec.Code)
+		if rec.Code != http.StatusServiceUnavailable {
+			t.Errorf("Got %d, expected 503", rec.Code)
 		}
 	})
 

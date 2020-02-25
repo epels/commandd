@@ -46,8 +46,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b, err := h.r.Run(ctx)
 	switch {
 	case errors.Is(err, context.Canceled):
-		// @todo: Find a more appropriate status code.
-		w.WriteHeader(http.StatusRequestTimeout)
+		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	case errors.Is(err, context.DeadlineExceeded):
 		w.WriteHeader(http.StatusRequestTimeout)
