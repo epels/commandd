@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,8 +25,11 @@ func TestServeHTTP(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/run", nil)
 
 		r := mock.Runner{
-			RunFunc: func(ctx context.Context) ([]byte, error) {
-				return []byte("hello world"), nil
+			RunFunc: func(ctx context.Context, w io.Writer) error {
+				if _, err := w.Write([]byte("hello world")); err != nil {
+					t.Fatalf("%T: Write: %s", w, err)
+				}
+				return nil
 			},
 		}
 		h := New(noopLogger, &r, defaultTimeout)
@@ -47,8 +51,8 @@ func TestServeHTTP(t *testing.T) {
 
 		var logBuf bytes.Buffer
 		r := mock.Runner{
-			RunFunc: func(ctx context.Context) ([]byte, error) {
-				return nil, errors.New("some-error")
+			RunFunc: func(ctx context.Context, w io.Writer) error {
+				return errors.New("some-error")
 			},
 		}
 		h := New(log.New(&logBuf, "", log.LstdFlags), &r, defaultTimeout)
@@ -70,8 +74,8 @@ func TestServeHTTP(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/run", nil)
 
 		r := mock.Runner{
-			RunFunc: func(ctx context.Context) ([]byte, error) {
-				return nil, context.Canceled
+			RunFunc: func(ctx context.Context, w io.Writer) error {
+				return context.Canceled
 			},
 		}
 		h := New(noopLogger, &r, defaultTimeout)
@@ -88,8 +92,8 @@ func TestServeHTTP(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/run", nil)
 
 		r := mock.Runner{
-			RunFunc: func(ctx context.Context) ([]byte, error) {
-				return nil, context.DeadlineExceeded
+			RunFunc: func(ctx context.Context, w io.Writer) error {
+				return context.DeadlineExceeded
 			},
 		}
 		h := New(noopLogger, &r, defaultTimeout)

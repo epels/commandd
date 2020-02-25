@@ -1,11 +1,14 @@
 package mock
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
 type Runner struct {
-	RunFunc func(context.Context) ([]byte, error)
+	RunFunc func(context.Context, io.Writer) error
 }
 
-func (r *Runner) Run(ctx context.Context) ([]byte, error) {
-	return r.RunFunc(ctx)
+func (r *Runner) Run(ctx context.Context, w io.Writer) error {
+	return r.RunFunc(ctx, w)
 }

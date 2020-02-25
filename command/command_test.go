@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 )
@@ -14,12 +15,12 @@ func TestRun(t *testing.T) {
 			t.Fatalf("New: %s", err)
 		}
 
-		b, err := cmd.Run(context.Background())
-		if err != nil {
+		var sb strings.Builder
+		if err = cmd.Run(context.Background(), &sb); err != nil {
 			t.Fatalf("Unexpected error running process: %v", err)
 		}
 
-		if s := string(b); s != "foo bar baz 42" {
+		if s := sb.String(); s != "foo bar baz 42" {
 			t.Errorf("Got %q, expected foo bar", s)
 		}
 	})
@@ -30,12 +31,12 @@ func TestRun(t *testing.T) {
 			t.Fatalf("New: %s", err)
 		}
 
-		b, err := cmd.Run(context.Background())
-		if err != nil {
+		var sb strings.Builder
+		if err = cmd.Run(context.Background(), &sb); err != nil {
 			t.Fatalf("Unexpected error running process: %v", err)
 		}
 
-		if s := string(b); s != "\n" {
+		if s := sb.String(); s != "\n" {
 			t.Errorf("Got %q, expected %q", s, "\n")
 		}
 	})
@@ -49,7 +50,8 @@ func TestRun(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 		defer cancel()
 
-		if _, err := cmd.Run(ctx); !errors.Is(err, context.DeadlineExceeded) {
+		var sb strings.Builder
+		if err := cmd.Run(ctx, &sb); !errors.Is(err, context.DeadlineExceeded) {
 			t.Fatalf("Got %T (%s), expected context.DeadlineExceeded", err, err)
 		}
 	})

@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -20,7 +21,7 @@ type handler struct {
 }
 
 type runner interface {
-	Run(context.Context) ([]byte, error)
+	Run(context.Context, io.Writer) error
 }
 
 // New gets a new handler that writes errors to the logger and invokes r as its
@@ -43,7 +44,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), h.timeout)
 	defer cancel()
 
-	b, err := h.r.Run(ctx)
+	err := h.r.Run(ctx, w)
 	switch {
 	case errors.Is(err, context.Canceled):
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -55,9 +56,5 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.errLog.Printf("%T.Run: %s", h.r, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	if _, err = w.Write(b); err != nil {
-		h.errLog.Printf("%T.Write: %s", w, err)
 	}
 }
