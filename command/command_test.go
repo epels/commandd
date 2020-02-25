@@ -41,6 +41,24 @@ func TestRun(t *testing.T) {
 		}
 	})
 
+	t.Run("Cancel", func(t *testing.T) {
+		cmd, err := New("sleep", "1")
+		if err != nil {
+			t.Fatalf("New: %s", err)
+		}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		go func() {
+			time.Sleep(25 * time.Millisecond)
+			cancel()
+		}()
+
+		var sb strings.Builder
+		if err := cmd.Run(ctx, &sb); !errors.Is(err, context.Canceled) {
+			t.Fatalf("Got %T (%s), expected context.DeadlineExceeded", err, err)
+		}
+	})
+
 	t.Run("Timeout", func(t *testing.T) {
 		cmd, err := New("sleep", "1")
 		if err != nil {
